@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:homepage": "node --experimental-strip-types --test tests/homepage.test.cjs",
-    "test:client": "node --experimental-strip-types --test tests/homepage.test.cjs tests/push-prompt.test.cjs tests/benin-phone.test.cjs"
+    "test:client": "node --experimental-strip-types --test tests/homepage.test.cjs tests/push-prompt.test.cjs tests/benin-phone.test.cjs tests/voice-recording.test.cjs"
   },
   "dependencies": {
     "lucide-react": "^1.61.0",

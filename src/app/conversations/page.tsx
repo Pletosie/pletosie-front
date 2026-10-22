@@ -499,7 +499,8 @@ function Conversations() {
                         <Icon name="trash" />
                       </button>
                       <button
-                        className="button"
+                        className="voice-send"
+                        aria-label={busy ? "Envoi du vocal en cours" : "Envoyer le vocal"}
                         disabled={busy}
                         onClick={() => {
                           void (async () => {
@@ -534,8 +535,7 @@ function Conversations() {
                           })();
                         }}
                       >
-                        <Icon name="send" size={18} />{" "}
-                        {busy ? "Envoi…" : "Envoyer le vocal"}
+                        <Icon name="send" size={22} />
                       </button>
                     </div>
                   )}

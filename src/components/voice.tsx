@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { prepareVoice } from "../lib/voice-audio";
 import { Icon } from "./icon";
 export const clock = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
@@ -39,7 +40,13 @@ export function AudioPlayer({
           if (Number.isFinite(e.currentTarget.duration))
             setLength(e.currentTarget.duration);
         }}
-        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+        onTimeUpdate={(e) =>
+          setTime(
+            length
+              ? Math.min(length, e.currentTarget.currentTime)
+              : e.currentTarget.currentTime,
+          )
+        }
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onEnded={(e) => {
@@ -108,7 +115,7 @@ export function VoiceRecorder({
   disabled?: boolean;
 }) {
   const [stage, setStage] = useState<
-      "idle" | "requesting" | "recording" | "paused"
+      "idle" | "requesting" | "recording" | "paused" | "preparing"
     >("idle"),
     [elapsed, setElapsed] = useState(0);
   const recorder = useRef<MediaRecorder | null>(null),
@@ -122,6 +129,9 @@ export function VoiceRecorder({
     limit = useRef<ReturnType<typeof setTimeout> | null>(null),
     elapsedRef = useRef(0),
     previous = useRef(0);
+  const finishRecording = useRef<() => Promise<void>>(async () => {});
+  const resumeRecording = useRef<() => void>(() => {});
+  const segments = useRef<Promise<Blob>[]>([]);
   function release() {
     if (limit.current) clearTimeout(limit.current);
     cancelAnimationFrame(frame.current);
@@ -132,12 +142,12 @@ export function VoiceRecorder({
       context.current = null;
     }
   }
-  function armLimit(r: MediaRecorder) {
+  function armLimit() {
     if (limit.current) clearTimeout(limit.current);
     // Leave a little room for the encoder's final packet below the server's 180 s limit.
     limit.current = setTimeout(
       () => {
-        if (r.state !== "inactive") r.stop();
+        void finishRecording.current();
       },
       Math.max(0, 179500 - elapsedRef.current * 1000),
     );
@@ -176,54 +186,83 @@ export function VoiceRecorder({
         throw new Error(
           "Aucun format vocal compatible. Vous pouvez écrire votre message.",
         );
-      const r = new MediaRecorder(source, { mimeType: mime });
-      recorder.current = r;
       discard.current = false;
       paused.current = false;
       elapsedRef.current = 0;
       setElapsed(0);
-      const chunks: Blob[] = [];
+      segments.current = [];
       let bytes = 0;
-      r.ondataavailable = (e) => {
-        if (e.data.size) {
-          chunks.push(e.data);
-          bytes += e.data.size;
-        }
-        if (bytes > 10 * 1024 * 1024 && r.state !== "inactive") r.stop();
-      };
-      r.onerror = () => {
-        discard.current = true;
-        if (r.state !== "inactive") r.stop();
-        release();
-        if (alive.current) {
-          setStage("idle");
+      const makeRecorder = () => {
+        const next = new MediaRecorder(source, { mimeType: mime });
+        const chunks: Blob[] = [];
+        segments.current.push(
+          new Promise<Blob>((resolve) => {
+            next.ondataavailable = (e) => {
+              if (e.data.size) {
+                chunks.push(e.data);
+                bytes += e.data.size;
+                if (bytes > 10 * 1024 * 1024) void finish();
+              }
+            };
+            next.onstop = () => resolve(new Blob(chunks, { type: mime }));
+          }),
+        );
+        next.onerror = () => {
+          discard.current = true;
+          void finish();
           onError("L’enregistrement a été interrompu. Réessayez.");
-        }
+        };
+        recorder.current = next;
+        next.start(250);
+        return next;
       };
-      r.onstop = () => {
-        if (!paused.current)
+      let finishing = false;
+      const finish = async () => {
+        if (finishing) return;
+        finishing = true;
+        const current = recorder.current;
+        if (current?.state === "recording") {
           elapsedRef.current += (performance.now() - previous.current) / 1000;
+          current.stop();
+        }
         release();
         if (!alive.current) return;
-        setStage("idle");
-        if (discard.current) return;
-        if (bytes > 10 * 1024 * 1024) {
-          onError("Le vocal dépasse 10 Mo. Enregistrez un message plus court.");
-          return;
+        setStage("preparing");
+        try {
+          const parts = await Promise.all(segments.current);
+          if (discard.current || !alive.current) return;
+          if (bytes > 10 * 1024 * 1024)
+            throw new Error(
+              "Le vocal dépasse 10 Mo. Enregistrez un message plus court.",
+            );
+          const prepared = await prepareVoice(parts);
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (alive.current)
+              onReady(String(reader.result), "audio/wav", prepared.duration);
+          };
+          reader.readAsDataURL(prepared.blob);
+          await new Promise<void>((resolve, reject) => {
+            reader.onloadend = () => resolve();
+            reader.onerror = () =>
+              reject(new Error("Impossible de préparer ce vocal."));
+          });
+        } catch (e) {
+          if (alive.current)
+            onError(
+              (e as Error).message ||
+                "Impossible de préparer ce vocal. Réessayez.",
+            );
+        } finally {
+          if (alive.current) setStage("idle");
         }
-        if (!bytes || elapsedRef.current < 0.2) {
-          onError("Le vocal est trop court. Réessayez.");
-          return;
-        }
-        const reader = new FileReader();
-        const duration = elapsedRef.current;
-        reader.onload = () => {
-          if (alive.current) onReady(String(reader.result), mime, duration);
-        };
-        reader.onerror = () => {
-          if (alive.current) onError("Impossible de préparer ce vocal.");
-        };
-        reader.readAsDataURL(new Blob(chunks, { type: mime }));
+      };
+      finishRecording.current = finish;
+      resumeRecording.current = () => {
+        makeRecorder();
+        previous.current = performance.now();
+        paused.current = false;
+        armLimit();
       };
       let analyser: AnalyserNode | null = null;
       try {
@@ -240,28 +279,32 @@ export function VoiceRecorder({
         release();
         return;
       }
+      makeRecorder();
       const samples = new Uint8Array(256),
         levels = Array<number>(48).fill(0.04);
       let lastDraw = 0;
-      r.start(250);
       setStage("recording");
       previous.current = performance.now();
-      armLimit(r);
+      armLimit();
       const draw = (now: number) => {
-        if (!alive.current || r.state === "inactive") return;
-        if (r.state === "recording")
+        if (!alive.current) return;
+        if (!paused.current && recorder.current?.state === "recording")
           elapsedRef.current += (now - previous.current) / 1000;
         previous.current = now;
         if (now - lastDraw > 90) {
           lastDraw = now;
           setElapsed(elapsedRef.current);
           let rms = 0;
-          if (analyser && r.state === "recording") {
+          if (
+            analyser &&
+            !paused.current &&
+            recorder.current?.state === "recording"
+          ) {
             analyser.getByteTimeDomainData(samples);
             for (const sample of samples) rms += ((sample - 128) / 128) ** 2;
             rms = Math.sqrt(rms / samples.length);
           }
-          if (r.state === "recording") {
+          if (!paused.current && recorder.current?.state === "recording") {
             levels.shift();
             levels.push(Math.max(0.04, Math.min(1, rms * 5)));
           }
@@ -287,7 +330,7 @@ export function VoiceRecorder({
           }
         }
         if (elapsedRef.current >= 180) {
-          r.stop();
+          void finish();
           return;
         }
         frame.current = requestAnimationFrame(draw);
@@ -301,6 +344,12 @@ export function VoiceRecorder({
       }
     }
   }
+  if (stage === "preparing")
+    return (
+      <span role="status" className="voice-preparing">
+        Préparation du vocal…
+      </span>
+    );
   if (stage === "idle" || stage === "requesting")
     return (
       <button
@@ -324,7 +373,7 @@ export function VoiceRecorder({
         aria-label="Annuler le vocal"
         onClick={() => {
           discard.current = true;
-          recorder.current?.stop();
+          void finishRecording.current();
         }}
       >
         <Icon name="trash" size={20} />
@@ -359,13 +408,12 @@ export function VoiceRecorder({
             previous.current = performance.now();
             paused.current = true;
             if (limit.current) clearTimeout(limit.current);
-            r.pause();
+            r.stop();
             setStage("paused");
-          } else if (r?.state === "paused") {
+          } else if (paused.current) {
             paused.current = false;
             previous.current = performance.now();
-            r.resume();
-            armLimit(r);
+            resumeRecording.current();
             setStage("recording");
           }
         }}
@@ -379,7 +427,7 @@ export function VoiceRecorder({
         type="button"
         className="voice-finish"
         aria-label="Terminer et écouter le vocal"
-        onClick={() => recorder.current?.stop()}
+        onClick={() => void finishRecording.current()}
       >
         <Icon name="play" />
       </button>

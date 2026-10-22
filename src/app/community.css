@@ -1367,3 +1367,8 @@
   height: 36px;
   min-height: 36px;
 }
+
+.conversations-page .audio-preview > .voice-send {width:46px;height:46px;min-height:46px;flex:0 0 46px;border:0;border-radius:50%;padding:0;display:grid;place-items:center;background:var(--accent);color:var(--on-accent);}
+.conversations-page .audio-preview {flex-wrap:nowrap;gap:8px;}
+.conversations-page .audio-preview .voice-player {min-width:0;}
+.voice-preparing {font-size:13px;padding:12px;}
