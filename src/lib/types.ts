@@ -18,6 +18,7 @@ export type Product = {
   price: number;
   image: string;
   published: boolean;
+  videos?: string[];
   madeToOrder: boolean;
   variants: Variant[];
 };

@@ -1,4 +1,5 @@
 "use client";
+import { VideoUpload } from "@/components/video-upload";
 import { Icon } from "@/components/icon";
 import Link from "next/link";
 import { HomepageEditor } from "@/components/homepage-editor";
@@ -64,6 +65,7 @@ const initial = {
   care: "",
   price: 15000,
   image: "/pieces/robe-terracotta.svg",
+  videos: [] as string[],
   published: false,
   madeToOrder: false,
   variants: [
@@ -91,6 +93,7 @@ export default function Admin() {
   const [editing, setEditing] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
+  const [videoBusy, setVideoBusy] = useState(false);
   async function load() {
     try {
       const [m, p, o, a] = await Promise.all([
@@ -112,7 +115,7 @@ export default function Admin() {
   }, [user]);
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!form) return;
+    if (!form || videoBusy) return;
     setBusy(true);
     setError("");
     try {
@@ -210,7 +213,12 @@ export default function Admin() {
           {error}
         </p>
       )}
-      {tab === "Accueil" && (metrics ? <HomepageEditor products={products} /> : <p role="status">Chargement des produits…</p>)}
+      {tab === "Accueil" &&
+        (metrics ? (
+          <HomepageEditor products={products} />
+        ) : (
+          <p role="status">Chargement des produits…</p>
+        ))}
       {tab === "Vue d’ensemble" && (
         <>
           <div className="stats-grid">
@@ -293,6 +301,15 @@ export default function Admin() {
                   <Icon name="close" size={20} />
                 </button>
               </div>
+              <VideoUpload
+                videos={form.videos}
+                onBusy={setVideoBusy}
+                onChange={(videos) =>
+                  setForm((current) =>
+                    current ? { ...current, videos } : current,
+                  )
+                }
+              />
               <div className="form-grid">
                 {[
                   ["name", "Nom"],
@@ -469,7 +486,7 @@ export default function Admin() {
                   onChange={(e) => setForm({ ...form, reason: e.target.value })}
                 />
               </label>
-              <button className="button" disabled={busy}>
+              <button className="button" disabled={busy || videoBusy}>
                 {busy ? "Enregistrement…" : "Enregistrer la pièce"}
               </button>
             </form>
@@ -521,6 +538,7 @@ export default function Admin() {
                               care: p.care,
                               price: p.price,
                               image: p.image,
+                              videos: p.videos || [],
                               published: p.published,
                               madeToOrder: p.madeToOrder,
                               variants: p.variants.map((v) => ({ ...v })),

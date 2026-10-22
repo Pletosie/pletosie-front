@@ -1,11 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
+const themes = [
+  "citron",
+  "marron",
+  "violet",
+  "olive",
+  "bordeaux",
+  "nuit",
+  "terracotta",
+  "petrole",
+];
+const themeNames: Record<string, string> = {
+  nuit: "Bleu nuit",
+  petrole: "Bleu pétrole",
+};
 export function ThemeSwitcher() {
   const [theme, setTheme] = useState("citron");
   useEffect(() => {
     try {
       const saved = localStorage.getItem("pletosie-theme");
-      if (saved && ["citron", "marron", "violet"].includes(saved)) {
+      if (saved && themes.includes(saved)) {
         setTheme(saved);
         document.documentElement.dataset.theme = saved;
       }
@@ -14,12 +28,12 @@ export function ThemeSwitcher() {
   return (
     <div className="theme-picker" aria-label="Couleur de la boutique">
       <span>Votre ambiance</span>
-      {["citron", "marron", "violet"].map((t) => (
+      {themes.map((t) => (
         <button
           key={t}
-          aria-label={"Thème " + t}
+          aria-label={"Thème " + (themeNames[t] || t)}
           aria-pressed={theme === t}
-          title={t}
+          title={themeNames[t] || t}
           className={"theme-dot " + t}
           onClick={() => {
             setTheme(t);
@@ -30,7 +44,7 @@ export function ThemeSwitcher() {
           }}
         >
           <i />
-          {t}
+          {themeNames[t] || t}
         </button>
       ))}
     </div>

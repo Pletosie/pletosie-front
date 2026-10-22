@@ -31,28 +31,45 @@ export function ProductDetail({ product: p }: { product: Product }) {
         <Link href="/catalogue">Collection</Link> / {p.category} / {p.name}
       </div>
       <div className="detail-grid">
-        <div className="detail-image">
-          <FashionImage
-            src={photo}
-            alt={`${p.name}, coloris ${color}`}
-            priority
-          />
-          <span className="product-tag">Visuel de présentation</span>
-          <div className="photo-colors">
-            {colors.map((v) => (
-              <button
-                key={v.color}
-                aria-label={"Voir le coloris " + v.color}
-                aria-pressed={color === v.color}
-                onClick={() => {
-                  setColor(v.color);
-                  setSize("");
-                }}
-              >
-                <FashionImage src={v.image} alt={v.color} />
-              </button>
-            ))}
+        <div>
+          <div className="detail-image">
+            <FashionImage
+              src={photo}
+              alt={`${p.name}, coloris ${color}`}
+              priority
+            />
+            <span className="product-tag">Visuel de présentation</span>
+            <div className="photo-colors">
+              {colors.map((v) => (
+                <button
+                  key={v.color}
+                  aria-label={"Voir le coloris " + v.color}
+                  aria-pressed={color === v.color}
+                  onClick={() => {
+                    setColor(v.color);
+                    setSize("");
+                  }}
+                >
+                  <FashionImage src={v.image} alt={v.color} />
+                </button>
+              ))}
+            </div>
           </div>
+          {Boolean(p.videos?.length) && (
+            <section className="creation-videos">
+              <h2>La pièce en mouvement.</h2>
+              {p.videos?.map((url, i) => (
+                <video
+                  key={url}
+                  src={url}
+                  controls
+                  playsInline
+                  preload="none"
+                  aria-label={p.name + ", vidéo " + (i + 1)}
+                />
+              ))}
+            </section>
+          )}
         </div>
         <div className="detail-info">
           <span className="eyebrow">
