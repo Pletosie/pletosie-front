@@ -110,6 +110,7 @@ function Conversations() {
     } else {
       setBusy(false);
       void load();
+      if (!threadId) setSelected(null);
       if (threadId)
         void api<Conversation>("/conversations/" + encodeURIComponent(threadId))
           .then((c) => {
@@ -213,7 +214,9 @@ function Conversations() {
   }
   const context = selected?.context;
   return (
-    <section className="wrap page conversations-page">
+    <section
+      className={`wrap page conversations-page${selected ? " has-open-thread" : ""}`}
+    >
       <span className="eyebrow">VOTRE STYLE, EN DIRECT</span>
       <h1>Vos conversations.</h1>
       {!user ? (
@@ -246,7 +249,7 @@ function Conversations() {
               {error}
             </p>
           )}
-          <div className="messaging">
+          <div className={`messaging${selected ? " thread-open" : ""}`}>
             <aside>
               {list.length ? (
                 list.map((c) => (
@@ -293,6 +296,18 @@ function Conversations() {
               {selected ? (
                 <>
                   <div className="chat-heading">
+                    <button
+                      type="button"
+                      className="conversation-back"
+                      aria-label="Retour aux conversations"
+                      onClick={() => {
+                        setSelected(null);
+                        setError("");
+                        router.replace("/conversations");
+                      }}
+                    >
+                      <Icon name="arrow-left" size={22} />
+                    </button>
                     <div className="chat-person">
                       <span className="thread-avatar">
                         {(selected.displayName || "P")

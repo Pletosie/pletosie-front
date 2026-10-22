@@ -912,3 +912,59 @@
     border-radius: 16px;
   }
 }
+
+.conversation-back {
+  display: none;
+}
+@media (max-width: 850px) {
+  .conversations-page .messaging {
+    display: block;
+    min-height: 380px;
+  }
+  .conversations-page .messaging > aside {
+    max-height: none;
+    overflow: visible;
+    border: 0;
+  }
+  .conversations-page .messaging > .chat-area {
+    display: none;
+  }
+  .conversations-page .messaging.thread-open > aside {
+    display: none;
+  }
+  .conversations-page .messaging.thread-open > .chat-area {
+    display: flex;
+  }
+  .conversations-page.has-open-thread > .eyebrow,
+  .conversations-page.has-open-thread > h1,
+  .conversations-page.has-open-thread .message-top {
+    display: none;
+  }
+  .conversation-back {
+    display: inline-grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--soft);
+    color: var(--ink);
+  }
+  .conversation-back:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .conversations-page .chat-heading {
+    gap: 10px;
+  }
+  .conversations-page .chat-person {
+    flex: 1;
+    min-width: 0;
+  }
+  .conversations-page .chat-person strong {
+    overflow-wrap: anywhere;
+  }
+  .conversations-page .chat-heading > span {
+    display: none;
+  }
+}
