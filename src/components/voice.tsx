@@ -353,6 +353,9 @@ export function VoiceRecorder({
         }}
       >
         <Icon name={stage === "paused" ? "play" : "pause"} />
+        <span className="record-pause-label">
+          {stage === "paused" ? "Reprendre" : "Pause"}
+        </span>
       </button>
       <button
         type="button"
@@ -360,7 +363,7 @@ export function VoiceRecorder({
         aria-label="Terminer et écouter le vocal"
         onClick={() => recorder.current?.stop()}
       >
-        <Icon name="check" />
+        <Icon name="play" />
       </button>
     </div>
   );

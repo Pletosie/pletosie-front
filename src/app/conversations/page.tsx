@@ -1,6 +1,13 @@
 "use client";
 import Link from "next/link";
-import { Suspense, useEffect, useRef, useState } from "react";
+import {
+  Fragment,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api, API } from "@/lib/api";
 import { money } from "@/lib/types";
@@ -61,6 +68,43 @@ function Conversations() {
   const [audio, setAudio] = useState<string | null>(null);
   const [mime, setMime] = useState("");
   const clientId = useRef<string>("");
+  const messageList = useRef<HTMLDivElement>(null);
+  const messageInput = useRef<HTMLTextAreaElement>(null);
+  const stickToBottom = useRef(true);
+  useEffect(() => {
+    if (!selected) return;
+    document.body.classList.add("mobile-chat-open");
+    const viewport = window.visualViewport;
+    const resize = () => {
+      document.documentElement.style.setProperty(
+        "--chat-height",
+        (viewport?.height || window.innerHeight) + "px",
+      );
+      document.documentElement.style.setProperty(
+        "--chat-top",
+        (viewport?.offsetTop || 0) + "px",
+      );
+    };
+    resize();
+    viewport?.addEventListener("resize", resize);
+    viewport?.addEventListener("scroll", resize);
+    return () => {
+      document.body.classList.remove("mobile-chat-open");
+      viewport?.removeEventListener("resize", resize);
+      viewport?.removeEventListener("scroll", resize);
+    };
+  }, [selected?.id]);
+  useLayoutEffect(() => {
+    const input = messageInput.current;
+    if (input) {
+      input.style.height = "0px";
+      input.style.height = Math.min(input.scrollHeight + 2, 200) + "px";
+    }
+  }, [text, selected?.id]);
+  useLayoutEffect(() => {
+    if (stickToBottom.current && messageList.current)
+      messageList.current.scrollTop = messageList.current.scrollHeight;
+  }, [messages, offers]);
   async function load() {
     try {
       const c = await api<Conversation[]>("/conversations");
@@ -126,6 +170,8 @@ function Conversations() {
   }, [user?.id, productId, variantId, threadId, router]);
   useEffect(() => {
     if (!selected) return;
+    stickToBottom.current = true;
+    setText("");
     setAudio(null);
     setMessages([]);
     setOffers([]);
@@ -200,6 +246,7 @@ function Conversations() {
           clientId: clientId.current,
         }),
       });
+      stickToBottom.current = true;
       setText("");
       clientId.current = "";
       setMessages(
@@ -352,36 +399,63 @@ function Conversations() {
                       </span>
                     </Link>
                   )}
-                  <div className="message-list">
+                  <div
+                    className="message-list"
+                    ref={messageList}
+                    onScroll={(e) => {
+                      const box = e.currentTarget;
+                      stickToBottom.current =
+                        box.scrollHeight - box.scrollTop - box.clientHeight <
+                        80;
+                    }}
+                    role="log"
+                    aria-label="Messages de la conversation"
+                    aria-live="polite"
+                  >
                     {!messages.length && (
                       <p className="muted">Le premier mot est à vous.</p>
                     )}
-                    {messages.map((m) => (
-                      <div
-                        key={m.id}
-                        className={
-                          m.userId === user.id ? "bubble mine" : "bubble"
-                        }
-                      >
-                        {m.kind === "audio" ? (
-                          <AudioPlayer
-                            privateAudio
-                            duration={m.audioDuration || 0}
-                            src={`${API}/messages/${m.id}/audio`}
-                          />
-                        ) : (
-                          <p>{m.text}</p>
+                    {messages.map((m, index) => (
+                      <Fragment key={m.id}>
+                        {(index === 0 ||
+                          new Date(
+                            messages[index - 1].createdAt,
+                          ).toLocaleDateString("fr-FR") !==
+                            new Date(m.createdAt).toLocaleDateString(
+                              "fr-FR",
+                            )) && (
+                          <time className="chat-day">
+                            {new Date(m.createdAt).toLocaleDateString("fr-FR", {
+                              timeZone: "Africa/Porto-Novo",
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </time>
                         )}
-                        <small>
-                          {new Date(m.createdAt).toLocaleString("fr-FR", {
-                            timeZone: "Africa/Porto-Novo",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            day: "numeric",
-                            month: "short",
-                          })}
-                        </small>
-                      </div>
+                        <div
+                          className={
+                            m.userId === user.id ? "bubble mine" : "bubble"
+                          }
+                        >
+                          {m.kind === "audio" ? (
+                            <AudioPlayer
+                              privateAudio
+                              duration={m.audioDuration || 0}
+                              src={`${API}/messages/${m.id}/audio`}
+                            />
+                          ) : (
+                            <p>{m.text}</p>
+                          )}
+                          <small>
+                            {new Date(m.createdAt).toLocaleString("fr-FR", {
+                              timeZone: "Africa/Porto-Novo",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </small>
+                        </div>
+                      </Fragment>
                     ))}
                     {offers.map((o) => (
                       <div className="offer-card" key={o.id}>
@@ -472,7 +546,19 @@ function Conversations() {
                       void send();
                     }}
                   >
-                    {!audio && (
+                    <textarea
+                      ref={messageInput}
+                      aria-label="Votre message"
+                      placeholder="Message"
+                      value={text}
+                      maxLength={4000}
+                      rows={1}
+                      onChange={(e) => {
+                        setText(e.target.value);
+                        clientId.current = "";
+                      }}
+                    />
+                    {!audio && !text.trim() && (
                       <VoiceRecorder
                         key={selected.id}
                         disabled={busy}
@@ -486,24 +572,15 @@ function Conversations() {
                         }}
                       />
                     )}
-                    <textarea
-                      aria-label="Votre message"
-                      placeholder="Votre message à l’atelier…"
-                      value={text}
-                      maxLength={4000}
-                      rows={2}
-                      onChange={(e) => {
-                        setText(e.target.value);
-                        clientId.current = "";
-                      }}
-                    />
-                    <button
-                      className="button"
-                      disabled={busy || !text.trim()}
-                      aria-label="Envoyer le message"
-                    >
-                      <Icon name="send" />
-                    </button>
+                    {Boolean(text.trim()) && (
+                      <button
+                        className="button"
+                        disabled={busy || !text.trim()}
+                        aria-label="Envoyer le message"
+                      >
+                        <Icon name="send" />
+                      </button>
+                    )}
                   </form>
                   <small className="chat-footnote">
                     Texte et vocaux uniquement. Aucun envoi d’image ni de vidéo.

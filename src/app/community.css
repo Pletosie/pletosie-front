@@ -968,3 +968,322 @@
     display: none;
   }
 }
+
+/* Conversation geometry: compact header, independent message scroller and composer. */
+.conversations-page .chat-area {
+  min-height: 0;
+}
+.conversations-page .chat-heading {
+  min-height: 60px;
+  padding: 8px 16px;
+  flex-shrink: 0;
+}
+.conversations-page .chat-heading .thread-avatar {
+  width: 40px;
+  height: 40px;
+  flex-basis: 40px;
+  font-size: 18px;
+}
+.conversations-page .chat-person strong {
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.conversations-page .message-list {
+  gap: 5px;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+}
+.conversations-page .bubble {
+  padding: 7px 10px 5px;
+  border-radius: 9px;
+  max-width: 85%;
+  box-shadow: 0 1px 1px #0000000c;
+}
+.conversations-page .bubble.mine {
+  border-radius: 9px 0 9px 9px;
+}
+.conversations-page .bubble:not(.mine) {
+  border-radius: 0 9px 9px 9px;
+}
+.conversations-page .bubble p {
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.conversations-page .bubble small {
+  font-size: 10px;
+  line-height: 1.2;
+  margin: 3px 0 0 20px;
+}
+.conversations-page .composer {
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px;
+  flex-shrink: 0;
+}
+.conversations-page .composer > textarea {
+  min-height: 44px !important;
+  max-height: 200px;
+  height: 44px;
+  border-radius: 24px;
+  resize: none;
+  padding: 11px 17px !important;
+  font-size: 16px !important;
+  line-height: 22px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  overflow-y: auto;
+  margin: 0;
+}
+.conversations-page .composer .record-start,
+.conversations-page .composer > .button {
+  width: 46px;
+  height: 46px;
+  min-height: 46px;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 50%;
+  padding: 0;
+}
+.conversations-page .composer:has(.voice-recording) {
+  background: var(--cream);
+}
+.conversations-page .voice-recording {
+  padding: 4px 0;
+  gap: 10px;
+}
+.conversations-page .live-wave small {
+  display: none;
+}
+.conversations-page .voice-recording .voice-finish {
+  width: 46px;
+  height: 46px;
+}
+.conversations-page .voice-recording time {
+  font-size: 16px;
+  font-weight: 500;
+}
+@media (max-width: 850px) {
+  body.mobile-chat-open {
+    overflow: hidden;
+  }
+  body.mobile-chat-open .push-invitation {
+    display: none;
+  }
+  .conversations-page.has-open-thread {
+    position: fixed;
+    z-index: 200;
+    top: var(--chat-top, 0px);
+    left: 0;
+    right: 0;
+    height: var(--chat-height, 100dvh);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 !important;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .conversations-page.has-open-thread > .error {
+    flex-shrink: 0;
+    margin: 0;
+    border-radius: 0;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  .conversations-page.has-open-thread .messaging.thread-open {
+    flex: 1;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+  }
+  .conversations-page.has-open-thread .chat-area {
+    height: 100%;
+    min-height: 0;
+  }
+  .conversations-page.has-open-thread .chat-heading {
+    order: 0;
+    background: var(--paper);
+    gap: 8px;
+    padding: 7px 10px;
+    min-height: 60px;
+  }
+  .conversations-page.has-open-thread .conversation-back {
+    width: 32px;
+    height: 40px;
+    background: transparent;
+  }
+  .conversations-page.has-open-thread .chat-person {
+    gap: 10px;
+  }
+  .conversations-page.has-open-thread .context-card {
+    order: 1;
+    padding: 8px 12px;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .conversations-page.has-open-thread .context-card > img,
+  .conversations-page.has-open-thread .context-card > .fashion-image {
+    width: 40px;
+    height: 54px;
+    flex-basis: 40px;
+  }
+  .conversations-page.has-open-thread .context-card strong {
+    font-size: 13px;
+  }
+  .conversations-page.has-open-thread .context-card small {
+    display: none;
+  }
+  .conversations-page.has-open-thread .context-card b,
+  .conversations-page.has-open-thread .context-card span {
+    font-size: 11px;
+  }
+  .conversations-page.has-open-thread .message-list {
+    order: 2;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    padding: 12px 8px;
+    overflow-y: auto;
+  }
+  .conversations-page.has-open-thread .bubble {
+    max-width: 88%;
+  }
+  .conversations-page.has-open-thread .bubble p {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+  .conversations-page.has-open-thread .bubble small {
+    font-size: 11px;
+  }
+  .conversations-page.has-open-thread .audio-preview {
+    order: 4;
+    flex-shrink: 0;
+    padding: 8px;
+    gap: 8px;
+  }
+  .conversations-page.has-open-thread .composer {
+    order: 5;
+    border: 0;
+    background: var(--soft);
+    padding: 6px 7px max(6px, env(safe-area-inset-bottom));
+  }
+  .conversations-page.has-open-thread .chat-footnote {
+    display: none;
+  }
+  .conversations-page.has-open-thread .offer-form {
+    order: 3;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0 12px;
+    max-height: 40%;
+    overflow-y: auto;
+    background: var(--paper);
+  }
+  .conversations-page.has-open-thread .offer-form summary {
+    font-size: 11px;
+    padding: 5px 0;
+    min-height: 28px;
+  }
+  .conversations-page.has-open-thread .voice-player {
+    min-width: 170px;
+    width: 250px;
+    max-width: 100%;
+  }
+}
+
+.chat-day {
+  align-self: center;
+  margin: 8px 0 12px;
+  padding: 5px 10px;
+  background: var(--paper);
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.chat-area:has(> .audio-preview) > .composer {
+  display: none;
+}
+
+.record-pause-label {
+  display: none;
+}
+@media (max-width: 850px) {
+  .conversations-page .voice-recording {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 46px;
+    gap: 8px;
+    padding: 8px 0;
+  }
+  .conversations-page .voice-recording time {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .conversations-page .voice-recording .live-wave {
+    grid-column: 2 / 4;
+    grid-row: 1;
+  }
+  .conversations-page .voice-recording .record-dot {
+    display: none;
+  }
+  .conversations-page .voice-recording > .voice-icon:first-child {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .conversations-page .voice-recording > .voice-icon:not(:first-child) {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 24px;
+    height: 46px;
+    background: var(--paper);
+  }
+  .conversations-page .voice-recording .voice-finish {
+    grid-column: 3;
+    grid-row: 2;
+  }
+  .record-pause-label {
+    display: inline;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+@media (min-width: 851px) {
+  .conversations-page .messaging {
+    height: min(760px, 85dvh);
+    min-height: 480px;
+  }
+  .conversations-page .message-list {
+    max-height: none;
+    min-height: 0;
+    flex: 1;
+  }
+}
+.conversations-page .chat-area .voice-track input[type="range"] {
+  min-height: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.conversations-page .message-list,
+.conversations-page .composer textarea {
+  scrollbar-width: thin;
+}
+.conversations-page .message-list::-webkit-scrollbar,
+.conversations-page .composer textarea::-webkit-scrollbar {
+  width: 4px;
+}
+.conversations-page .message-list::-webkit-scrollbar-button,
+.conversations-page .composer textarea::-webkit-scrollbar-button {
+  display: none;
+}
