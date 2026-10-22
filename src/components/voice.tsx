@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Icon } from "./icon";
 export const clock = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
@@ -23,8 +23,13 @@ export function AudioPlayer({
     setLength(duration);
     setError(false);
   }, [src, duration]);
+  const progress =
+    length > 0 ? Math.max(0, Math.min(100, (time / length) * 100)) : 0;
   return (
-    <div className="voice-player">
+    <div
+      className="voice-player"
+      style={{ "--voice-progress": progress + "%" } as CSSProperties}
+    >
       <audio
         ref={element}
         src={src}
@@ -57,26 +62,39 @@ export function AudioPlayer({
         <Icon name={playing ? "pause" : "play"} size={19} />
       </button>
       <div className="voice-track">
-        <input
-          aria-label="Position dans le vocal"
-          type="range"
-          min="0"
-          max={length || 1}
-          step="0.1"
-          value={Math.min(time, length || 1)}
-          disabled={!length}
-          onChange={(e) => {
-            if (element.current)
-              element.current.currentTime = Number(e.target.value);
-          }}
-        />
+        <div className="voice-seek">
+          <div className="voice-seek-rail" aria-hidden="true">
+            <div className="voice-seek-fill" />
+            <div className="voice-seek-dot" />
+          </div>
+          <input
+            aria-label="Position dans le vocal"
+            aria-valuetext={
+              clock(time) +
+              " sur " +
+              (length ? clock(length) : "durée inconnue")
+            }
+            type="range"
+            min="0"
+            max={length || 1}
+            step="0.1"
+            value={Math.min(time, length || 1)}
+            disabled={!length}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              if (element.current) {
+                element.current.currentTime = next;
+                setTime(next);
+              }
+            }}
+          />
+        </div>
         <span>
           {error
             ? "Lecture indisponible"
             : `${clock(time)} / ${length ? clock(length) : "—:—"}`}
         </span>
       </div>
-      <Icon name="mic" size={17} />
     </div>
   );
 }

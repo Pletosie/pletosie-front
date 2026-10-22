@@ -1287,3 +1287,83 @@
 .conversations-page .composer textarea::-webkit-scrollbar-button {
   display: none;
 }
+
+/* Custom audio track: the native range only handles touch, pointer and keyboard input. */
+.voice-player {
+  --voice-track-color: var(--ink);
+  gap: 10px;
+}
+.bubble.mine .voice-player {
+  --voice-track-color: var(--on-accent);
+}
+.voice-seek {
+  position: relative;
+  height: 32px;
+  width: 100%;
+  min-width: 70px;
+  border-radius: 12px;
+}
+.voice-seek-rail {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 14px;
+  height: 4px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--voice-track-color) 22%, transparent);
+  pointer-events: none;
+}
+.voice-seek-fill {
+  height: 100%;
+  width: var(--voice-progress, 0%);
+  border-radius: inherit;
+  background: var(--voice-track-color);
+}
+.voice-seek-dot {
+  position: absolute;
+  left: var(--voice-progress, 0%);
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--voice-track-color);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--voice-track-color) 12%, transparent);
+}
+.voice-player .voice-track .voice-seek input[type="range"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100% !important;
+  height: 32px !important;
+  min-height: 0 !important;
+  max-height: 32px;
+  padding: 0 !important;
+  margin: 0;
+  border: 0;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.voice-seek:focus-within {
+  outline: 2px solid var(--voice-track-color);
+  outline-offset: 2px;
+}
+.voice-seek:has(input:disabled) {
+  opacity: 0.45;
+}
+.voice-seek:has(input:disabled) input {
+  cursor: default;
+}
+.voice-player .voice-track > span {
+  margin: 1px 8px 0;
+  font-size: 11px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.voice-player .voice-play {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+}
