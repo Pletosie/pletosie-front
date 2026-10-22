@@ -180,6 +180,7 @@ export default function Payment({
                     <span aria-hidden="true">+229</span>
                     <input
                       aria-label="Numéro Mobile Money au Bénin"
+                      aria-describedby="payment-phone-help"
                       autoComplete="tel-national"
                       inputMode="numeric"
                       type="tel"
@@ -196,6 +197,7 @@ export default function Payment({
                       title="Numéro béninois de 10 chiffres commençant par 01"
                     />
                   </span>
+                  <small id="payment-phone-help" className="phone-help">Entrez les 10 chiffres de votre numéro, sans +229.</small>
                 </label>
                 <button
                   className="button"

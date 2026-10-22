@@ -3,6 +3,7 @@ import { CheckoutHeading } from "@/components/checkout-heading";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { beninNationalNumber } from "@/lib/benin-phone";
 import { api } from "@/lib/api";
 import { money } from "@/lib/types";
 import { useStore } from "@/components/store";
@@ -41,7 +42,7 @@ export default function Checkout() {
           })),
           address: {
             name: f.get("name"),
-            phone: f.get("phone"),
+            phone: "229" + beninNationalNumber(String(f.get("phone"))),
             details: f.get("details"),
             zone,
           },
@@ -103,14 +104,16 @@ export default function Checkout() {
             </label>
             <label>
               Téléphone
-              <input
-                name="phone"
-                type="tel"
-                required
-                minLength={8}
-                maxLength={25}
-                placeholder="+229 …"
-              />
+              <span className="benin-phone">
+                <span aria-hidden="true">+229</span>
+                <input name="phone" type="tel" required autoComplete="tel-national"
+                  aria-label="Téléphone au Bénin" aria-describedby="delivery-phone-help"
+                  inputMode="numeric" pattern="01[0-9]{8}" maxLength={20}
+                  placeholder="01 XX XX XX XX"
+                  title="Numéro béninois de 10 chiffres commençant par 01"
+                  onChange={(e) => { e.currentTarget.value = beninNationalNumber(e.currentTarget.value); }} />
+              </span>
+              <small id="delivery-phone-help" className="phone-help">Entrez les 10 chiffres de votre numéro, sans +229.</small>
             </label>
             <label>
               Zone de livraison
