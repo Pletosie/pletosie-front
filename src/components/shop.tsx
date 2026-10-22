@@ -60,6 +60,12 @@ export function Shop({
   useEffect(() => {
     setCategory(params.get("categorie") || "Tout voir");
     setQ(params.get("q") || "");
+    setSort(params.get("tri") || "recent");
+    setSize(params.get("taille") || "");
+    setColor(params.get("couleur") || "");
+    setMax(params.get("prix") || "");
+    setAvailable(params.get("disponible") === "1");
+    setLimit(12);
   }, [params]);
   function update(key: string, value: string) {
     const next = new URLSearchParams(window.location.search);
@@ -71,6 +77,30 @@ export function Shop({
       `${window.location.pathname}${next.size ? `?${next}` : ""}`,
     );
     setLimit(12);
+  }
+  const activeFilters = [
+    q,
+    size,
+    color,
+    max,
+    available,
+    sort !== "recent",
+  ].filter(Boolean).length;
+  function resetFilters() {
+    setQ("");
+    setSize("");
+    setColor("");
+    setMax("");
+    setAvailable(false);
+    setSort("recent");
+    setLimit(12);
+    const next = new URLSearchParams();
+    if (category !== "Tout voir") next.set("categorie", category);
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + (next.size ? `?${next}` : ""),
+    );
   }
   const products = initialProducts
     .filter(
@@ -192,14 +222,24 @@ export function Shop({
           </section>
         </>
       )}
-      <section className="collection wrap">
+      <section
+        className={
+          catalogue ? "collection wrap catalogue-page" : "collection wrap"
+        }
+      >
         <div className="section-title">
           <div>
             <span className="eyebrow">
               {catalogue ? "LA BOUTIQUE" : "À DÉCOUVRIR"}
             </span>
             {catalogue ? (
-              <h1 className="section-heading">Toute la collection</h1>
+              <h1 className="section-heading">
+                {category !== "Tout voir"
+                  ? category
+                  : q
+                    ? "Votre recherche"
+                    : "Toute la collection"}
+              </h1>
             ) : (
               <h2 className="section-heading">Votre prochain coup de cœur.</h2>
             )}
@@ -209,10 +249,11 @@ export function Shop({
           </span>
         </div>
         <div className="catalog-toolbar">
-          <div className="tabs">
+          <nav className="tabs" aria-label="Filtrer par catégorie">
             {["Tout voir", "Robes", "Ensembles", "Hauts", "Jupes"].map((c) => (
               <button
                 key={c}
+                aria-pressed={category === c}
                 className={category === c ? "selected" : ""}
                 onClick={() => {
                   setCategory(c);
@@ -222,88 +263,131 @@ export function Shop({
                 {c}
               </button>
             ))}
-          </div>
+          </nav>
           <label className="sort">
             Trier par{" "}
-            <select
-              value={sort}
-              onChange={(e) => {
-                setSort(e.target.value);
-                update("tri", e.target.value);
-              }}
-            >
-              <option value="recent">Nouveautés</option>
-              <option value="asc">Prix croissant</option>
-              <option value="desc">Prix décroissant</option>
-            </select>
+            <span className="catalog-select">
+              <select
+                value={sort}
+                onChange={(e) => {
+                  setSort(e.target.value);
+                  update("tri", e.target.value);
+                }}
+              >
+                <option value="recent">Nouveautés</option>
+                <option value="asc">Prix croissant</option>
+                <option value="desc">Prix décroissant</option>
+              </select>
+              <Icon name="chevron-down" size={15} />
+            </span>
           </label>
         </div>
         {catalogue && (
-          <div className="filters">
-            <input
-              aria-label="Rechercher"
-              placeholder="Rechercher une pièce…"
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                update("q", e.target.value);
-              }}
-            />
-            <select
-              aria-label="Taille"
-              value={size}
-              onChange={(e) => {
-                setSize(e.target.value);
-                update("taille", e.target.value);
-              }}
-            >
-              <option value="">Toutes les tailles</option>
-              {["XS", "S", "M", "L", "XL", "XXL"].map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-            <select
-              aria-label="Couleur"
-              value={color}
-              onChange={(e) => {
-                setColor(e.target.value);
-                update("couleur", e.target.value);
-              }}
-            >
-              <option value="">Tous les coloris</option>
-              {[
-                ...new Set(
-                  initialProducts.flatMap((p) =>
-                    p.variants.map((v) => v.color),
-                  ),
-                ),
-              ].map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-            <input
-              type="number"
-              min="0"
-              placeholder="Budget maximum (FCFA)"
-              aria-label="Prix maximum"
-              value={max}
-              onChange={(e) => {
-                setMax(e.target.value);
-                update("prix", e.target.value);
-              }}
-            />
-            <label className="check">
-              <input
-                type="checkbox"
-                checked={available}
-                onChange={(e) => {
-                  setAvailable(e.target.checked);
-                  update("disponible", e.target.checked ? "1" : "");
-                }}
-              />{" "}
-              En stock
-            </label>
-          </div>
+          <section
+            className="catalog-filter-panel"
+            aria-label="Affiner la collection"
+          >
+            <div className="catalog-filter-heading">
+              <span>
+                <Icon name="filters" size={17} /> Affiner votre sélection{" "}
+                {activeFilters > 0 && <b>{activeFilters}</b>}
+              </span>
+              {activeFilters > 0 && (
+                <button className="filter-reset" onClick={resetFilters}>
+                  <Icon name="close" size={14} /> Réinitialiser
+                </button>
+              )}
+            </div>
+            <div className="filters">
+              <label className="catalog-filter-field filter-search">
+                <span>Rechercher</span>
+                <span className="catalog-search-input">
+                  <Icon name="search" size={18} />
+                  <input
+                    aria-label="Rechercher une pièce"
+                    placeholder="Nom, style, envie…"
+                    value={q}
+                    onChange={(e) => {
+                      setQ(e.target.value);
+                      update("q", e.target.value);
+                    }}
+                  />
+                </span>
+              </label>
+              <label className="catalog-filter-field">
+                <span>Taille</span>
+                <span className="catalog-select">
+                  <select
+                    aria-label="Taille"
+                    value={size}
+                    onChange={(e) => {
+                      setSize(e.target.value);
+                      update("taille", e.target.value);
+                    }}
+                  >
+                    <option value="">Toutes les tailles</option>
+                    {["XS", "S", "M", "L", "XL", "XXL"].map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
+                  </select>
+                  <Icon name="chevron-down" size={15} />
+                </span>
+              </label>
+              <label className="catalog-filter-field">
+                <span>Coloris</span>
+                <span className="catalog-select">
+                  <select
+                    aria-label="Couleur"
+                    value={color}
+                    onChange={(e) => {
+                      setColor(e.target.value);
+                      update("couleur", e.target.value);
+                    }}
+                  >
+                    <option value="">Tous les coloris</option>
+                    {[
+                      ...new Set(
+                        initialProducts.flatMap((p) =>
+                          p.variants.map((v) => v.color),
+                        ),
+                      ),
+                    ].map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                  <Icon name="chevron-down" size={15} />
+                </span>
+              </label>
+              <label className="catalog-filter-field">
+                <span>Budget maximum</span>
+                <span className="catalog-budget">
+                  <input
+                    type="number"
+                    min="0"
+                    aria-label="Prix maximum en FCFA"
+                    placeholder="Votre budget"
+                    value={max}
+                    onChange={(e) => {
+                      setMax(e.target.value);
+                      update("prix", e.target.value);
+                    }}
+                  />
+                  <span>FCFA</span>
+                </span>
+              </label>
+              <label className="check catalog-stock">
+                <input
+                  type="checkbox"
+                  checked={available}
+                  onChange={(e) => {
+                    setAvailable(e.target.checked);
+                    update("disponible", e.target.checked ? "1" : "");
+                  }}
+                />
+                <span>En stock uniquement</span>
+              </label>
+            </div>
+          </section>
         )}
         <div className="demo-note">
           Collection démo · visuels de présentation générés, prix et stock de

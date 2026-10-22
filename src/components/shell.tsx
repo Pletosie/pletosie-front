@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { ThemeSwitcher } from "./retail";
+import { CategoryNavigation } from "./category-navigation";
 import { usePathname } from "next/navigation";
 import { useStore } from "./store";
 import { Icon } from "./icon";
@@ -38,7 +39,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <div className="header-actions">
             <Link href="/conversations" aria-label="Conversations">
               <Icon name="chat" />
-              {unread > 0 && <span className="unread-count">{unread}</span>}
+              {unread > 0 && (
+                <span className="unread-count header-count">
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
             </Link>
             <Link href="/compte" aria-label="Mon compte">
               <Icon name="user" />
@@ -49,27 +54,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
               aria-label={`Panier, ${count} articles`}
             >
               <Icon name="bag" />
-              <span>{count}</span>
+              <span className="header-count">{count > 99 ? "99+" : count}</span>
             </Link>
           </div>
         </div>
         <ThemeSwitcher />
-        <nav className="categories">
-          <Link
-            className={path === "/catalogue" ? "active" : ""}
-            href="/catalogue"
-          >
-            Toute la collection
-          </Link>
-          {["Robes", "Ensembles", "Hauts", "Jupes"].map((c) => (
-            <Link key={c} href={`/catalogue?categorie=${c}`}>
-              {c}
-            </Link>
-          ))}
-          <Link href="/conversations" className="custom-link">
-            Le sur-mesure <Icon name="arrow-up-right" size={16} />
-          </Link>
-        </nav>
+        <CategoryNavigation />
       </header>
       <main id="contenu">{children}</main>
       <footer>

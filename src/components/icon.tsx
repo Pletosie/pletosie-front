@@ -8,6 +8,8 @@ import {
   Bell,
   Check,
   ChevronRight,
+  ChevronDown,
+  SlidersHorizontal,
   House,
   LayoutGrid,
   MapPin,
@@ -62,6 +64,8 @@ const icons: Record<string, LucideIcon> = {
   minus: Minus,
   close: X,
   chevron: ChevronRight,
+  "chevron-down": ChevronDown,
+  filters: SlidersHorizontal,
 };
 export function Icon({ name, size = 22 }: { name: string; size?: number }) {
   const Component = icons[name] || LayoutGrid;

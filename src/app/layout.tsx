@@ -5,6 +5,7 @@ import { PushProvider } from "@/components/push-notifications";
 import "./globals.css";
 import "./retail.css";
 import "./community.css";
+import "./catalog.css";
 export const metadata: Metadata = {
   title: {
     default: "Pletosie — Des pièces qui vous ressemblent",

@@ -102,6 +102,27 @@ button {
   background: var(--accent) !important;
   color: var(--on-accent) !important;
 }
+.header-actions > a {
+  position: relative;
+}
+.header-actions .header-count {
+  position: absolute;
+  top: 1px;
+  right: -3px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 2px solid var(--paper);
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
 .categories {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
