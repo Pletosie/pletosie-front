@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { shouldShowPushPrompt } from "@/lib/push-prompt";
 import { api } from "@/lib/api";
 import { useStore } from "./store";
 type PushState = {
@@ -17,9 +18,12 @@ type PushState = {
 };
 const Context = createContext<PushState | null>(null);
 export function PushProvider({ children }: { children: React.ReactNode }) {
-  const { user, tell } = useStore();
+  const { user, tell, authReady } = useStore();
   const [supported, setSupported] = useState(false);
   const [enabled, setEnabled] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [permission, setPermission] =
+    useState<NotificationPermission>("default");
   const [configured, setConfigured] = useState(false);
   const [busy, setBusy] = useState(false);
   const [key, setKey] = useState("");
@@ -41,16 +45,32 @@ export function PushProvider({ children }: { children: React.ReactNode }) {
     if (visits.current >= nextPrompt.current) setDismissed(false);
   }, [pathname]);
   useEffect(() => {
+    const syncPermission = () => {
+      if ("Notification" in window) setPermission(Notification.permission);
+    };
+    syncPermission();
+    window.addEventListener("focus", syncPermission);
+    document.addEventListener("visibilitychange", syncPermission);
     setSupported(
       window.isSecureContext &&
         "serviceWorker" in navigator &&
         "PushManager" in window &&
         "Notification" in window,
     );
+    return () => {
+      window.removeEventListener("focus", syncPermission);
+      document.removeEventListener("visibilitychange", syncPermission);
+    };
   }, []);
   useEffect(() => {
+    setChecked(false);
     setEnabled(false);
-    if (!user || !supported) return;
+    if (!supported || !authReady) return;
+    if (!user) {
+      setEnabled(false);
+      setChecked(true);
+      return;
+    }
     let active = true;
 
     void (async () => {
@@ -72,6 +92,7 @@ export function PushProvider({ children }: { children: React.ReactNode }) {
           Notification.permission === "granted" &&
           localStorage.getItem("pletosie-push-owner") === user.id
         ) {
+          if (active) setEnabled(true);
           await api("/push/subscribe", {
             method: "POST",
             body: JSON.stringify({
@@ -83,6 +104,8 @@ export function PushProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (e) {
         if (active) setError((e as Error).message);
+      } finally {
+        if (active) setChecked(true);
       }
     })();
     const onPush = (event: MessageEvent) => {
@@ -96,13 +119,14 @@ export function PushProvider({ children }: { children: React.ReactNode }) {
       active = false;
       navigator.serviceWorker.removeEventListener("message", onPush);
     };
-  }, [user?.id, supported]);
+  }, [user?.id, supported, authReady]);
   async function enable() {
     if (!user || !supported || !key) return;
     setBusy(true);
     setError("");
     try {
       const permission = await Notification.requestPermission();
+      setPermission(permission);
       if (permission !== "granted")
         throw new Error(
           "Autorisez les notifications dans les paramètres de ce site pour recevoir les alertes.",
@@ -201,7 +225,16 @@ export function PushProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
-      {supported && (!user || configured) && !enabled && !dismissed && (
+      {shouldShowPushPrompt({
+        authReady,
+        checked,
+        permission,
+        supported,
+        loggedIn: Boolean(user),
+        configured,
+        enabled,
+        dismissed,
+      }) && (
         <aside
           className="push-invitation"
           aria-label="Recevoir les notifications"

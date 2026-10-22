@@ -13,6 +13,7 @@ type Store = {
   notice: string;
   tell: (message: string) => void;
   ready: boolean;
+  authReady: boolean;
   unread: number;
 };
 const Context = createContext<Store | null>(null);
@@ -21,6 +22,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<Line[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const [notice, tell] = useState("");
   const synced = useRef<string | null>(null);
   const [unread, setUnread] = useState(0);
@@ -29,6 +31,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setUser(await api<User>("/auth/me"));
     } catch {
       setUser(null);
+    } finally {
+      setAuthReady(true);
     }
   }
   useEffect(() => {
@@ -184,6 +188,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         clear: () => setLines([]),
         user,
         refresh,
+        authReady,
         notice,
         tell,
         ready,

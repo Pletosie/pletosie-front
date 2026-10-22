@@ -1,4 +1,5 @@
 "use client";
+import { DownloadReceipt } from "@/components/download-receipt";
 import Link from "next/link";
 import { Icon } from "@/components/icon";
 import { useEffect, useState } from "react";
@@ -53,6 +54,10 @@ export default function Orders() {
           <h1>Mes commandes</h1>
         </div>
       </div>
+      <Link href="/paiements" className="text-link">
+        Historique des paiements et reçus{" "}
+        <Icon name="arrow-up-right" size={17} />
+      </Link>
       {!user ? (
         <Link className="button" href="/compte">
           Me connecter
@@ -116,6 +121,9 @@ export default function Orders() {
                       : o.paymentStatus}
                 </p>
                 <div className="choices">
+                  {o.paymentStatus === "confirmed" && (
+                    <DownloadReceipt orderId={o.id} />
+                  )}
                   {o.status === "awaiting_payment" && (
                     <Link className="button" href={`/paiement/${o.id}`}>
                       Continuer vers le paiement

@@ -1,4 +1,5 @@
 "use client";
+import { DownloadReceipt } from "@/components/download-receipt";
 import { VideoUpload } from "@/components/video-upload";
 import { Icon } from "@/components/icon";
 import Link from "next/link";
@@ -620,6 +621,9 @@ export default function Admin() {
               <article className="panel" key={o.id}>
                 <div className="section-title">
                   <h2>{o.id.slice(0, 15)}</h2>
+                  {o.paymentStatus === "confirmed" && (
+                    <DownloadReceipt orderId={o.id} />
+                  )}
                   <strong>{money(o.total)}</strong>
                 </div>
                 <p>

@@ -1,4 +1,6 @@
 "use client";
+import { beninNationalNumber } from "@/lib/benin-phone";
+import { DownloadReceipt } from "@/components/download-receipt";
 import { CheckoutHeading } from "@/components/checkout-heading";
 import { Icon } from "@/components/icon";
 import Link from "next/link";
@@ -54,7 +56,7 @@ export default function Payment({
         method: "POST",
         body: JSON.stringify({
           operator,
-          phone: String(f.get("phone")).replace(/\D/g, ""),
+          phone: "229" + String(f.get("phone")).replace(/\D/g, ""),
         }),
       });
       await load();
@@ -174,13 +176,26 @@ export default function Payment({
                 </label>
                 <label>
                   Numéro Mobile Money
-                  <input
-                    type="tel"
-                    name="phone"
-                    required
-                    placeholder="22901XXXXXXXX"
-                    pattern="22901[0-9]{8}"
-                  />
+                  <span className="benin-phone">
+                    <span aria-hidden="true">+229</span>
+                    <input
+                      aria-label="Numéro Mobile Money au Bénin"
+                      autoComplete="tel-national"
+                      inputMode="numeric"
+                      type="tel"
+                      name="phone"
+                      required
+                      placeholder="01 XX XX XX XX"
+                      pattern="01[0-9]{8}"
+                      maxLength={20}
+                      onChange={(e) => {
+                        e.currentTarget.value = beninNationalNumber(
+                          e.currentTarget.value,
+                        );
+                      }}
+                      title="Numéro béninois de 10 chiffres commençant par 01"
+                    />
+                  </span>
                 </label>
                 <button
                   className="button"
@@ -194,6 +209,14 @@ export default function Payment({
                 </p>
               </form>
             )}
+          {order?.paymentStatus === "confirmed" && (
+            <DownloadReceipt orderId={id} />
+          )}
+          {order?.paymentStatus === "confirmed" && (
+            <Link href="/paiements" className="button">
+              Mon reçu et mes paiements <Icon name="download" size={18} />
+            </Link>
+          )}
           <Link href="/commandes" className="text-link payment-orders-link">
             Retrouver ma commande <Icon name="arrow-up-right" size={15} />
           </Link>

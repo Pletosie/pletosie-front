@@ -82,6 +82,15 @@ export default function Account() {
               </h2>
               <p>Un échange direct avec la créatrice.</p>
             </Link>
+            <Link className="panel" href="/paiements">
+              <span className="account-icon">
+                <Icon name="shield" />
+              </span>
+              <h2>
+                Mes paiements <Icon name="arrow-up-right" size={19} />
+              </h2>
+              <p>Historique et reçus téléchargeables.</p>
+            </Link>
             {user.role === "admin" && (
               <Link className="panel" href="/admin">
                 <span className="account-icon">
