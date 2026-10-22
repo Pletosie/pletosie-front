@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { Product } from "@/lib/types";
 import { money } from "@/lib/types";
-import { Icon } from "./shell";
+import { Icon } from "./icon";
 export function ProductCard({ product: p }: { product: Product }) {
   return (
     <article className="product-card">
@@ -116,7 +116,7 @@ export function Shop({
                 Je trouve mon look <Icon name="arrow" size={20} />
               </Link>
               <Link href="#looks" className="hero-secondary">
-                Explorer les styles ↓
+                Explorer les styles <Icon name="arrow-down" size={14} />
               </Link>
             </div>
             <div className="retail-hero-art">
@@ -129,7 +129,7 @@ export function Shop({
               <span className="hero-burst">
                 LE STYLE
                 <br />
-                C’EST VOUS ↗
+                C’EST VOUS <Icon name="arrow-up-right" size={15} />
               </span>
               {initialProducts.slice(0, 2).map((p, i) => (
                 <Link
@@ -142,25 +142,31 @@ export function Shop({
                     {p.name}
                     <b>{money(p.price)}</b>
                   </span>
-                  <i>↗</i>
+                  <Icon name="arrow-up-right" size={17} />
                 </Link>
               ))}
             </div>
           </section>
           <div className="energy-strip">
             <span>VOTRE ALLURE</span>
-            <b>✳</b>
+            <b>
+              <Icon name="asterisk" size={24} />
+            </b>
             <span>VOTRE ÉNERGIE</span>
-            <b>✳</b>
+            <b>
+              <Icon name="asterisk" size={24} />
+            </b>
             <span>VOTRE PROCHAINE PIÈCE</span>
-            <b>✳</b>
+            <b>
+              <Icon name="asterisk" size={24} />
+            </b>
             <span>PLETOSIE</span>
           </div>
           <section className="look-section wrap" id="looks">
             <div className="section-title">
               <h2>À chaque envie, son look.</h2>
               <Link href="/catalogue" className="text-link">
-                Tout explorer ↗
+                Tout explorer <Icon name="arrow-up-right" size={15} />
               </Link>
             </div>
             <div className="look-grid">
@@ -175,7 +181,9 @@ export function Shop({
                     {p && <FashionImage src={p.image} alt={c} />}
                     <span>
                       {c}
-                      <b>↗</b>
+                      <b>
+                        <Icon name="arrow-up-right" size={16} />
+                      </b>
                     </span>
                   </Link>
                 );
@@ -351,7 +359,9 @@ export function Shop({
                       ? "Prête à faire sensation."
                       : "Une allure. Votre signature."}
                   </h2>
-                  <span className="button">Découvrir {p.name} ↗</span>
+                  <span className="button">
+                    Découvrir {p.name} <Icon name="arrow-up-right" size={15} />
+                  </span>
                 </div>
               </Link>
             ))}

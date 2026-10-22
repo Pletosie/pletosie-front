@@ -1,3 +1,4 @@
+import { Icon } from "@/components/icon";
 import { notFound } from "next/navigation";
 const pages: Record<string, { title: string; paragraphs: string[] }> = {
   livraison: {
@@ -62,7 +63,7 @@ export default async function Help({
         <p key={i}>{text}</p>
       ))}
       <a className="text-link" href="/conversations">
-        Échanger avec l’atelier ↗
+        Échanger avec l’atelier <Icon name="arrow-up-right" size={15} />
       </a>
     </section>
   );

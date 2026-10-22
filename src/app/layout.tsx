@@ -4,6 +4,7 @@ import { Shell } from "@/components/shell";
 import { PushProvider } from "@/components/push-notifications";
 import "./globals.css";
 import "./retail.css";
+import "./community.css";
 export const metadata: Metadata = {
   title: {
     default: "Pletosie — Des pièces qui vous ressemblent",

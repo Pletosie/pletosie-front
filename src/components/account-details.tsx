@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Icon } from "./icon";
 import { api } from "@/lib/api";
 import { useStore } from "./store";
 import { NotificationSettings } from "./push-notifications";
@@ -38,7 +39,9 @@ export function AccountDetails() {
     <>
       <NotificationSettings />
       <div className="panel">
-        <h2>Mes coordonnées</h2>
+        <h2>
+          <Icon name="user" /> Mes coordonnées
+        </h2>
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -69,7 +72,9 @@ export function AccountDetails() {
         </form>
       </div>
       <div className="panel">
-        <h2>Mes adresses</h2>
+        <h2>
+          <Icon name="pin" /> Mes adresses
+        </h2>
         {addresses.map((a) => (
           <p key={a.id}>
             <strong>
@@ -119,7 +124,9 @@ export function AccountDetails() {
         </details>
       </div>
       <div className="panel">
-        <h2>Mes notifications</h2>
+        <h2>
+          <Icon name="bell" /> Mes notifications
+        </h2>
         {!notifications.length ? (
           <p>Aucune notification pour le moment.</p>
         ) : (
@@ -131,8 +138,13 @@ export function AccountDetails() {
                   void api(`/notifications/${n.id}/read`, { method: "POST" });
                 }}
               >
-                {!n.read ? "● " : ""}
-                {n.title} ↗
+                {!n.read && (
+                  <>
+                    <Icon name="unread" size={8} />
+                    <span className="sr-only">Non lue : </span>
+                  </>
+                )}
+                {n.title} <Icon name="arrow-up-right" size={15} />
               </Link>
               <small>
                 {new Date(n.createdAt).toLocaleString("fr-FR", {

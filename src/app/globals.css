@@ -297,7 +297,6 @@ header {
 }
 .custom-link {
   color: var(--wine);
-  border-left: 1px solid var(--line);
   padding-left: 36px !important;
 }
 .custom-link span {
@@ -415,7 +414,6 @@ header {
   font-size: 10px;
 }
 .benefits span + span {
-  border-left: 1px solid var(--line);
 }
 .benefits svg {
   color: var(--wine);
@@ -857,14 +855,12 @@ input[type="checkbox"] {
 }
 .info {
   background: #f4eee2;
-  border-left: 3px solid #b69565;
   padding: 16px 20px;
   font-size: 12px !important;
   line-height: 1.8;
 }
 .error {
   background: #f9e9e8;
-  border-left: 3px solid #a74848;
   padding: 12px 18px;
   color: #872c39;
   font-size: 12px;
@@ -1309,7 +1305,7 @@ th {
 }
 .skeleton {
   height: 200px;
-  background: linear-gradient(100deg, #eee8df, #faf8f3, #eee8df);
+  background: var(--soft);
   background-size: 200%;
   animation: shimmer 1.5s infinite;
 }
@@ -1356,7 +1352,6 @@ th {
     gap: 20px;
   }
   .benefits span:nth-child(3) {
-    border-left: 0;
   }
   .product-grid {
     gap: 26px 16px;

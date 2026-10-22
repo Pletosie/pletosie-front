@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/icon";
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { api } from "@/lib/api";
@@ -107,7 +108,8 @@ export default function Payment({
                 }
               }}
             >
-              Vérifier auprès de FeexPay ↗
+              Vérifier auprès de FeexPay{" "}
+              <Icon name="arrow-up-right" size={15} />
             </button>
           )}
         </div>
@@ -153,7 +155,7 @@ export default function Payment({
           </form>
         )}
       <Link href="/commandes" className="text-link">
-        Retrouver ma commande ↗
+        Retrouver ma commande <Icon name="arrow-up-right" size={15} />
       </Link>
     </section>
   );

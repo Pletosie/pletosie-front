@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { Icon } from "@/components/icon";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { money } from "@/lib/types";
@@ -43,8 +44,15 @@ export default function Orders() {
   }, [user]);
   return (
     <section className="wrap page">
-      <span className="eyebrow">VOTRE ESPACE</span>
-      <h1>Mes commandes</h1>
+      <div className="orders-heading">
+        <span className="order-emblem">
+          <Icon name="orders" size={36} />
+        </span>
+        <div>
+          <span className="eyebrow">VOTRE ESPACE</span>
+          <h1>Mes commandes</h1>
+        </div>
+      </div>
       {!user ? (
         <Link className="button" href="/compte">
           Me connecter
@@ -60,6 +68,9 @@ export default function Orders() {
             <p>Chargement…</p>
           ) : !orders.length ? (
             <div className="empty">
+              <span className="order-empty-icon">
+                <Icon name="orders-empty" size={46} />
+              </span>
               <h2>Votre histoire avec l’atelier commence ici.</h2>
               <p>Vos commandes apparaîtront dans cet espace.</p>
               <Link href="/catalogue" className="button">

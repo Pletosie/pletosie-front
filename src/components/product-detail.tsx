@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { type Product, money } from "@/lib/types";
 import { api } from "@/lib/api";
 import { useStore } from "./store";
-import { Icon } from "./shell";
+import { Icon } from "./icon";
 export function ProductDetail({ product: p }: { product: Product }) {
   const { add } = useStore();
   const colors = [...new Map(p.variants.map((v) => [v.color, v])).values()];
@@ -91,7 +91,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
             <legend>
               Taille{" "}
               <Link href="/guide-des-tailles" className="size-guide">
-                Guide des mesures ↗
+                Guide des mesures <Icon name="arrow-up-right" size={13} />
               </Link>
             </legend>
             <div className="choices">
@@ -164,7 +164,7 @@ export function ProductDetail({ product: p }: { product: Product }) {
             className="discuss"
           >
             <Icon name="chat" size={19} /> Discuter de cet article{" "}
-            <span>↗</span>
+            <Icon name="arrow-up-right" size={17} />
           </Link>
           <div className="product-facts">
             <p>

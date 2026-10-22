@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/icon";
 import Link from "next/link";
 import { Operations } from "@/components/operations";
 import { BrandSettings } from "@/components/brand-settings";
@@ -177,7 +178,7 @@ export default function Admin() {
           <h1>Bonjour, l’atelier.</h1>
         </div>
         <Link href="/conversations" className="button secondary">
-          Les conversations ↗
+          Les conversations <Icon name="arrow-up-right" size={15} />
         </Link>
       </div>
       <nav className="admin-tabs">
@@ -233,7 +234,7 @@ export default function Admin() {
                 chiffre d’affaires n’est pas un bénéfice.
               </p>
               <button className="text-link" onClick={() => setTab("Produits")}>
-                Gérer la collection ↗
+                Gérer la collection <Icon name="arrow-up-right" size={15} />
               </button>
             </div>
             <div className="panel">
@@ -246,7 +247,7 @@ export default function Admin() {
                 className="text-link"
                 onClick={() => setTab("Paramètres")}
               >
-                Voir les paramètres ↗
+                Voir les paramètres <Icon name="arrow-up-right" size={15} />
               </button>
             </div>
           </div>
@@ -274,7 +275,7 @@ export default function Admin() {
                 });
               }}
             >
-              Ajouter une pièce +
+              Ajouter une pièce <Icon name="plus" size={17} />
             </button>
           </div>
           {form && (
@@ -286,7 +287,7 @@ export default function Admin() {
                   onClick={() => setForm(null)}
                   aria-label="Fermer"
                 >
-                  ×
+                  <Icon name="close" size={20} />
                 </button>
               </div>
               <div className="form-grid">
@@ -525,7 +526,7 @@ export default function Admin() {
                             window.scrollTo({ top: 200, behavior: "smooth" });
                           }}
                         >
-                          Modifier ↗
+                          Modifier <Icon name="arrow-up-right" size={15} />
                         </button>
                       </td>
                     </tr>
@@ -585,7 +586,7 @@ export default function Admin() {
           <div className="message-top">
             <h2>{orders.length} commandes</h2>
             <button className="button secondary" onClick={exportOrders}>
-              Exporter CSV ↓
+              Exporter CSV <Icon name="download" size={17} />
             </button>
           </div>
           {!orders.length ? (
@@ -747,7 +748,8 @@ export default function Admin() {
               est bloquée.
             </p>
             <Link href="/aide/conditions" className="text-link">
-              Voir le projet de conditions ↗
+              Voir le projet de conditions{" "}
+              <Icon name="arrow-up-right" size={15} />
             </Link>
           </div>
         </>

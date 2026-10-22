@@ -3,7 +3,7 @@ import Link from "next/link";
 import { FashionImage } from "@/components/retail";
 import { useStore } from "@/components/store";
 import { money } from "@/lib/types";
-import { Icon } from "@/components/shell";
+import { Icon } from "@/components/icon";
 export default function Cart() {
   const { lines, change, ready } = useStore();
   const total = lines.reduce((s, l) => s + l.price * l.quantity, 0);
@@ -47,7 +47,7 @@ export default function Cart() {
                       onClick={() => change(l.variantId, l.quantity - 1)}
                       aria-label={`Réduire ${l.name}`}
                     >
-                      −
+                      <Icon name="minus" size={15} />
                     </button>
                     <span>{l.quantity}</span>
                     <button
@@ -55,7 +55,7 @@ export default function Cart() {
                       disabled={l.quantity >= 20}
                       aria-label={`Augmenter ${l.name}`}
                     >
-                      +
+                      <Icon name="plus" size={15} />
                     </button>
                     <button
                       className="remove"

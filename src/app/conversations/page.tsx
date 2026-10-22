@@ -7,16 +7,24 @@ import { money } from "@/lib/types";
 import { useStore } from "@/components/store";
 import { AudioPlayer, VoiceRecorder } from "@/components/voice";
 import { FashionImage } from "@/components/retail";
-import { Icon } from "@/components/shell";
+import { Icon } from "@/components/icon";
 type Conversation = {
   id: string;
   subject: string;
   displayName: string;
-  person: {id:string;name:string}|null;
+  person: { id: string; name: string } | null;
   updatedAt: string;
-  context: { name: string; slug: string; variant: string; image?:string; price?:number; category?:string } | null;
+  context: {
+    name: string;
+    slug: string;
+    variant: string;
+    image?: string;
+    price?: number;
+    category?: string;
+  } | null;
 };
 type Message = {
+  audioDuration?: number;
   id: string;
   userId: string;
   text: string;
@@ -49,7 +57,7 @@ function Conversations() {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [audioDuration,setAudioDuration] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
   const [audio, setAudio] = useState<string | null>(null);
   const [mime, setMime] = useState("");
   const clientId = useRef<string>("");
@@ -66,7 +74,7 @@ function Conversations() {
   }
   useEffect(() => {
     if (!user) return;
-    sessionStorage.removeItem('pletosie-after-login');
+    sessionStorage.removeItem("pletosie-after-login");
     let active = true;
     if (productId) {
       const key = user.id + ":" + productId + ":" + (variantId || "");
@@ -117,7 +125,10 @@ function Conversations() {
   }, [user?.id, productId, variantId, threadId, router]);
   useEffect(() => {
     if (!selected) return;
-    setAudio(null);setMessages([]);setOffers([]);clientId.current="";
+    setAudio(null);
+    setMessages([]);
+    setOffers([]);
+    clientId.current = "";
     let active = true;
     async function poll() {
       try {
@@ -227,7 +238,7 @@ function Conversations() {
               {params.get("produit")
                 ? "Discuter de cet article"
                 : "Nouvelle conversation"}{" "}
-              +
+              <Icon name="plus" size={17} />
             </button>
           </div>
           {error && (
@@ -253,16 +264,25 @@ function Conversations() {
                       setMessages([]);
                     }}
                   >
-                    <span className="thread-avatar">{(c.displayName || c.person?.name || "P").slice(0,1).toUpperCase()}</span>
+                    <span className="thread-avatar">
+                      {(c.displayName || c.person?.name || "P")
+                        .slice(0, 1)
+                        .toUpperCase()}
+                    </span>
                     <span>
-                      <strong>{c.displayName || c.person?.name || "Atelier Pletosie"}</strong><small className="thread-subject">{c.context?.name || "Votre projet sur mesure"}</small>
+                      <strong>
+                        {c.displayName || c.person?.name || "Atelier Pletosie"}
+                      </strong>
+                      <small className="thread-subject">
+                        {c.context?.name || "Votre projet sur mesure"}
+                      </small>
                       <small>
                         {new Date(c.updatedAt).toLocaleDateString("fr-FR", {
                           timeZone: "Africa/Porto-Novo",
                         })}
                       </small>
                     </span>
-                    <span>›</span>
+                    <Icon name="chevron" size={17} />
                   </button>
                 ))
               ) : (
@@ -273,14 +293,48 @@ function Conversations() {
               {selected ? (
                 <>
                   <div className="chat-heading">
-                    <div className="chat-person"><span className="thread-avatar">{(selected.displayName || "P").slice(0,1).toUpperCase()}</span><div><strong>{selected.displayName || selected.person?.name || "Atelier Pletosie"}</strong><small>{selected.context?.name || "Votre projet sur mesure"}</small></div></div><span>Échange privé</span>
+                    <div className="chat-person">
+                      <span className="thread-avatar">
+                        {(selected.displayName || "P")
+                          .slice(0, 1)
+                          .toUpperCase()}
+                      </span>
+                      <div>
+                        <strong>
+                          {selected.displayName ||
+                            selected.person?.name ||
+                            "Atelier Pletosie"}
+                        </strong>
+                        <small>
+                          {selected.context?.name || "Votre projet sur mesure"}
+                        </small>
+                      </div>
+                    </div>
+                    <span>Échange privé</span>
                   </div>
                   {context && (
                     <Link
                       className="context-card"
                       href={`/produit/${context.slug}`}
                     >
-                      {context.image && <FashionImage src={context.image} alt={context.name}/>}<div><small>À PROPOS DE CET ARTICLE</small><strong>{context.name}</strong><span>{[context.category,context.variant].filter(Boolean).join(" · ")}</span>{context.price!==undefined&&<b>{money(context.price)}</b>}</div><span className="context-arrow">↗</span>
+                      {context.image && (
+                        <FashionImage src={context.image} alt={context.name} />
+                      )}
+                      <div>
+                        <small>À PROPOS DE CET ARTICLE</small>
+                        <strong>{context.name}</strong>
+                        <span>
+                          {[context.category, context.variant]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                        {context.price !== undefined && (
+                          <b>{money(context.price)}</b>
+                        )}
+                      </div>
+                      <span className="context-arrow">
+                        <Icon name="arrow-up-right" size={20} />
+                      </span>
                     </Link>
                   )}
                   <div className="message-list">
@@ -295,7 +349,11 @@ function Conversations() {
                         }
                       >
                         {m.kind === "audio" ? (
-                          <AudioPlayer privateAudio src={`${API}/messages/${m.id}/audio`} />
+                          <AudioPlayer
+                            privateAudio
+                            duration={m.audioDuration || 0}
+                            src={`${API}/messages/${m.id}/audio`}
+                          />
                         ) : (
                           <p>{m.text}</p>
                         )}
@@ -340,9 +398,20 @@ function Conversations() {
                   </div>
                   {audio && (
                     <div className="audio-preview">
-                      <AudioPlayer src={audio} duration={audioDuration}/>
-                      <button className="voice-icon" aria-label="Supprimer le vocal" onClick={() => {setAudio(null);clientId.current=""}}><Icon name="trash"/></button>
-                      <button className="button" disabled={busy}
+                      <AudioPlayer src={audio} duration={audioDuration} />
+                      <button
+                        className="voice-icon"
+                        aria-label="Supprimer le vocal"
+                        onClick={() => {
+                          setAudio(null);
+                          clientId.current = "";
+                        }}
+                      >
+                        <Icon name="trash" />
+                      </button>
+                      <button
+                        className="button"
+                        disabled={busy}
                         onClick={() => {
                           void (async () => {
                             setBusy(true);
@@ -376,9 +445,9 @@ function Conversations() {
                           })();
                         }}
                       >
-                        <Icon name="arrow" size={18}/> {busy ? "Envoi…" : "Envoyer le vocal"}
+                        <Icon name="send" size={18} />{" "}
+                        {busy ? "Envoi…" : "Envoyer le vocal"}
                       </button>
-
                     </div>
                   )}
                   <form
@@ -388,7 +457,20 @@ function Conversations() {
                       void send();
                     }}
                   >
-                    {!audio && <VoiceRecorder key={selected.id} disabled={busy} onError={setError} onReady={(data,type,duration)=>{setAudio(data);setMime(type);setAudioDuration(duration);clientId.current="";setError("")}}/>}
+                    {!audio && (
+                      <VoiceRecorder
+                        key={selected.id}
+                        disabled={busy}
+                        onError={setError}
+                        onReady={(data, type, duration) => {
+                          setAudio(data);
+                          setMime(type);
+                          setAudioDuration(duration);
+                          clientId.current = "";
+                          setError("");
+                        }}
+                      />
+                    )}
                     <textarea
                       aria-label="Votre message"
                       placeholder="Votre message à l’atelier…"
@@ -405,7 +487,7 @@ function Conversations() {
                       disabled={busy || !text.trim()}
                       aria-label="Envoyer le message"
                     >
-                      <Icon name="arrow" />
+                      <Icon name="send" />
                     </button>
                   </form>
                   <small className="chat-footnote">

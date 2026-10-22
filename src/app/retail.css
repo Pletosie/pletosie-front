@@ -77,13 +77,12 @@ button {
   font-size: 8px;
   margin-top: 9px;
 }
-.brand:after {
-  content: "✳";
+.brand > .ui-icon {
   color: var(--accent);
-  font-size: 22px;
   position: absolute;
-  margin-left: 3px;
+  left: 100%;
   top: 0;
+  margin-left: 3px;
 }
 .brand {
   position: relative;
@@ -530,7 +529,6 @@ button {
 }
 .campaign-1 > .fashion-image {
   mix-blend-mode: normal;
-  mask-image: linear-gradient(to right, transparent, #000 25%);
 }
 .footnote {
   font-size: 10px;
@@ -646,7 +644,6 @@ footer a {
 }
 .push-invitation {
   border: 1px solid var(--accent);
-  border-left: 6px solid var(--accent);
   border-radius: 14px;
   box-shadow: 0 12px 50px #0002;
   background: white;
@@ -1115,20 +1112,12 @@ footer a {
   object-fit: contain;
   object-position: center;
   mix-blend-mode: normal;
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    #000 12%,
-    #000 88%,
-    transparent
-  );
 }
 .hero-orbit {
   opacity: 0.8;
 }
 .campaign-0 > .fashion-image {
   mix-blend-mode: normal;
-  mask-image: linear-gradient(to right, transparent, #000 25%);
 }
 .header-actions a {
   color: var(--ink);
@@ -1228,7 +1217,6 @@ footer a {
   .retail-hero-art > img {
     object-fit: cover;
     object-position: 48% center;
-    mask-image: linear-gradient(to right, transparent, #000 18%);
   }
   .hero-orbit {
     inset: 10% -30% -25% 3%;

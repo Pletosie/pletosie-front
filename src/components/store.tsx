@@ -1,4 +1,5 @@
 "use client";
+import { Icon } from "@/components/icon";
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import type { Line, User } from "@/lib/types";
 import { api } from "@/lib/api";
@@ -192,7 +193,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       {children}
       {notice && (
         <div role="status" className="toast">
-          ✓ {notice}
+          <Icon name="check" size={18} /> {notice}
         </div>
       )}
     </Context.Provider>
