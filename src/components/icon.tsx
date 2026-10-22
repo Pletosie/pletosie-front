@@ -1,5 +1,6 @@
 import {
   ArrowDown,
+  ArrowUp,
   Asterisk,
   Circle,
   Download,
@@ -44,6 +45,7 @@ const icons: Record<string, LucideIcon> = {
   arrow: ArrowRight,
   "arrow-up-right": ArrowUpRight,
   "arrow-down": ArrowDown,
+  "arrow-up": ArrowUp,
   asterisk: Asterisk,
   unread: Circle,
   download: Download,

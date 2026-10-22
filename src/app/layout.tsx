@@ -6,6 +6,7 @@ import "./globals.css";
 import "./retail.css";
 import "./community.css";
 import "./catalog.css";
+import "./commerce.css";
 export const metadata: Metadata = {
   title: {
     default: "Pletosie — Des pièces qui vous ressemblent",

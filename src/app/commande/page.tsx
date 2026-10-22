@@ -1,4 +1,5 @@
 "use client";
+import { CheckoutHeading } from "@/components/checkout-heading";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -59,9 +60,12 @@ export default function Checkout() {
     }
   }
   return (
-    <section className="wrap page">
-      <span className="eyebrow">DERNIERS DÉTAILS</span>
-      <h1>Votre commande</h1>
+    <section className="wrap page commerce-page">
+      <CheckoutHeading
+        step={2}
+        eyebrow="DERNIERS DÉTAILS"
+        title="À vous de jouer."
+      />
       {!user ? (
         <div className="empty">
           <h2>Connectez-vous pour continuer.</h2>

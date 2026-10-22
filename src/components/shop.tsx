@@ -1,4 +1,9 @@
 "use client";
+import {
+  defaultHomepage,
+  homepageProducts,
+  type Homepage,
+} from "@/lib/homepage";
 import Link from "next/link";
 import { FashionImage } from "./retail";
 import { useEffect, useState } from "react";
@@ -42,10 +47,17 @@ export function ProductCard({ product: p }: { product: Product }) {
 export function Shop({
   initialProducts,
   catalogue = false,
+  homepage,
 }: {
   initialProducts: Product[];
   catalogue?: boolean;
+  homepage?: Homepage | null;
 }) {
+  const config = homepage || defaultHomepage(initialProducts);
+  const heroProduct = initialProducts.find(
+    (p) => p.id === config.heroProductId,
+  );
+  const featured = homepageProducts(config.selection, initialProducts);
   const params = useSearchParams();
   const [category, setCategory] = useState(
     params.get("categorie") || "Tout voir",
@@ -102,7 +114,7 @@ export function Shop({
       window.location.pathname + (next.size ? `?${next}` : ""),
     );
   }
-  const products = initialProducts
+  const products = (catalogue ? initialProducts : featured)
     .filter(
       (p) =>
         (category === "Tout voir" || p.category === category) &&
@@ -132,17 +144,16 @@ export function Shop({
             <div className="retail-hero-copy">
               <span className="eyebrow">LA COLLECTION PLETOSIE</span>
               <h1>
-                Entrez.
-                <br />
-                Repérez.
-                <br />
-                <span>Craquez.</span>
+                {config.title.split(" ").slice(0, -1).join(" ")}{" "}
+                <span>{config.title.split(" ").at(-1)}</span>
               </h1>
-              <p>
-                La pièce qui change tout ?<br />
-                Elle vous attend ici.
-              </p>
-              <Link href="/catalogue" className="button">
+              <p>{config.subtitle}</p>
+              <Link
+                href={
+                  heroProduct ? "/produit/" + heroProduct.slug : "/catalogue"
+                }
+                className="button"
+              >
                 Je trouve mon look <Icon name="arrow" size={20} />
               </Link>
               <Link href="#looks" className="hero-secondary">
@@ -151,17 +162,26 @@ export function Shop({
             </div>
             <div className="retail-hero-art">
               <div className="hero-orbit" />
-              <img
-                src="/editorial/hero-pletosie.png"
-                alt="Look de présentation Pletosie, blouse ivoire et pantalon chocolat"
-                fetchPriority="high"
-              />
+              {heroProduct ? (
+                <FashionImage
+                  src={heroProduct.image}
+                  alt={heroProduct.name}
+                  className="hero-main-image"
+                  priority
+                />
+              ) : (
+                <img
+                  src="/editorial/hero-pletosie.png"
+                  alt="La collection Pletosie"
+                  fetchPriority="high"
+                />
+              )}
               <span className="hero-burst">
                 LE STYLE
                 <br />
                 C’EST VOUS <Icon name="arrow-up-right" size={15} />
               </span>
-              {initialProducts.slice(0, 2).map((p, i) => (
+              {homepageProducts(config.hero, initialProducts).map((p, i) => (
                 <Link
                   key={p.id}
                   href={"/produit/" + p.slug}
@@ -200,12 +220,12 @@ export function Shop({
               </Link>
             </div>
             <div className="look-grid">
-              {["Robes", "Ensembles", "Hauts", "Jupes"].map((c) => {
-                const p = initialProducts.find((p) => p.category === c);
+              {homepageProducts(config.looks, initialProducts).map((p) => {
+                const c = p.category;
                 return (
                   <Link
-                    key={c}
-                    href={"/catalogue?categorie=" + c}
+                    key={p.id}
+                    href={"/catalogue?categorie=" + encodeURIComponent(c)}
                     className="look-card"
                   >
                     {p && <FashionImage src={p.image} alt={c} />}
@@ -241,7 +261,7 @@ export function Shop({
                     : "Toute la collection"}
               </h1>
             ) : (
-              <h2 className="section-heading">Votre prochain coup de cœur.</h2>
+              <h2 className="section-heading">{config.selectionTitle}</h2>
             )}
           </div>
           <span className="muted">
@@ -424,31 +444,28 @@ export function Shop({
       </section>
       {!catalogue && (
         <section className="campaign-grid wrap">
-          {initialProducts
-            .filter((p) => ["Robes", "Ensembles"].includes(p.category))
-            .slice(0, 2)
-            .map((p, i) => (
-              <Link
-                href={"/produit/" + p.slug}
-                key={p.id}
-                className={"campaign campaign-" + i}
-              >
-                <FashionImage src={p.image} alt={p.name} />
-                <div>
-                  <span className="eyebrow">
-                    {i ? "LE LOOK COMPLET" : "LA PIÈCE FORTE"}
-                  </span>
-                  <h2>
-                    {i
-                      ? "Prête à faire sensation."
-                      : "Une allure. Votre signature."}
-                  </h2>
-                  <span className="button">
-                    Découvrir {p.name} <Icon name="arrow-up-right" size={15} />
-                  </span>
-                </div>
-              </Link>
-            ))}
+          {homepageProducts(config.campaigns, initialProducts).map((p, i) => (
+            <Link
+              href={"/produit/" + p.slug}
+              key={p.id}
+              className={"campaign campaign-" + i}
+            >
+              <FashionImage src={p.image} alt={p.name} />
+              <div>
+                <span className="eyebrow">
+                  {i ? "LE LOOK COMPLET" : "LA PIÈCE FORTE"}
+                </span>
+                <h2>
+                  {i
+                    ? "Prête à faire sensation."
+                    : "Une allure. Votre signature."}
+                </h2>
+                <span className="button">
+                  Découvrir {p.name} <Icon name="arrow-up-right" size={15} />
+                </span>
+              </div>
+            </Link>
+          ))}
         </section>
       )}
       <p className="footnote wrap">

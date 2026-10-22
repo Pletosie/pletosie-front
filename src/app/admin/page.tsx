@@ -1,6 +1,7 @@
 "use client";
 import { Icon } from "@/components/icon";
 import Link from "next/link";
+import { HomepageEditor } from "@/components/homepage-editor";
 import { Operations } from "@/components/operations";
 import { BrandSettings } from "@/components/brand-settings";
 import { useEffect, useState } from "react";
@@ -184,6 +185,7 @@ export default function Admin() {
       <nav className="admin-tabs">
         {[
           "Vue d’ensemble",
+          "Accueil",
           "Produits",
           "Stocks",
           "Commandes",
@@ -208,6 +210,7 @@ export default function Admin() {
           {error}
         </p>
       )}
+      {tab === "Accueil" && (metrics ? <HomepageEditor products={products} /> : <p role="status">Chargement des produits…</p>)}
       {tab === "Vue d’ensemble" && (
         <>
           <div className="stats-grid">

@@ -8,7 +8,7 @@ export default function Cart() {
   const { lines, change, ready } = useStore();
   const total = lines.reduce((s, l) => s + l.price * l.quantity, 0);
   return (
-    <section className="wrap page">
+    <section className="wrap page commerce-page">
       <span className="eyebrow">VOTRE SÉLECTION</span>
       <h1>
         Mon panier{" "}

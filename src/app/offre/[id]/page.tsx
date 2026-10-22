@@ -1,4 +1,5 @@
 "use client";
+import { CheckoutHeading } from "@/components/checkout-heading";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
@@ -40,9 +41,12 @@ export default function OfferPage({
       .catch((e) => setError(e.message));
   }, [id]);
   return (
-    <section className="wrap page prose">
-      <span className="eyebrow">VOTRE PROPOSITION PERSONNALISÉE</span>
-      <h1>Une création pour vous.</h1>
+    <section className="wrap page commerce-page offer-page">
+      <CheckoutHeading
+        step={2}
+        eyebrow="VOTRE PROPOSITION PERSONNALISÉE"
+        title="Une création. Pour vous."
+      />
       {error && (
         <p className="error" role="alert">
           {error}
