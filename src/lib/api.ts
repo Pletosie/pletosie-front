@@ -1,5 +1,7 @@
-export const API =
+export const SERVER_API =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+// Browser requests use the site's proxy and first-party cookies.
+export const API = typeof window === "undefined" ? SERVER_API : "/api/v1";
 export async function api<T>(
   path: string,
   options: RequestInit = {},

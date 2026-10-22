@@ -4,7 +4,7 @@ import { Icon } from "@/components/icon";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AccountDetails } from "@/components/account-details";
-import { api, API } from "@/lib/api";
+import { api } from "@/lib/api";
 import { useStore } from "@/components/store";
 export default function Account() {
   const router = useRouter();
@@ -142,7 +142,7 @@ export default function Account() {
               passer à votre prochaine envie.
             </p>
             {enabled ? (
-              <a href={`${API}/auth/google`} className="button google-button">
+              <a href="/api/v1/auth/google" className="button google-button">
                 <svg
                   width="20"
                   height="20"
