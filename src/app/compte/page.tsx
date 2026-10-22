@@ -13,9 +13,9 @@ export default function Account() {
   const [error, setError] = useState("");
   useEffect(() => {
     if (!user) return;
-    const target = sessionStorage.getItem("pletosie-after-login");
+    const target = sessionStorage.getItem("pletosie_session");
     if (target) {
-      sessionStorage.removeItem("pletosie-after-login");
+      sessionStorage.removeItem("pletosie_session");
       if (target.startsWith("/conversations?")) router.replace(target);
     }
   }, [user, router]);
